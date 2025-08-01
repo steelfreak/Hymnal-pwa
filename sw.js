@@ -1,7 +1,7 @@
 const CACHE_NAME = 'hymnbook-cache-v1';
 const urlsToCache = [
   '.',
-  'hymnbook.html',  // Update if your HTML file is named differently
+  'index.html',  // Update if your HTML file is named differently
   'manifest.json',
   'icon-192.png',
   'icon-512.png'
