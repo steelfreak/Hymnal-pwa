@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hymns Editor with Dark/Light Mode</title>
+<style>
+  /* Base and reset */
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--bg-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 20px 20px 60px; /* bottom padding to avoid overlap with footer */
+    display: flex;
+    justify-content: center;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    min-height: 100vh;
+    flex-direction: column;
+  }
+
+  :root {
+    --bg-color: #f9fafb;
+    --text-color: #2c3e50;
+    --form-bg: #e9eff3;
+    --form-border: #cbd5e1;
+    --button-bg: #2980b9;
+    --button-bg-hover: #1c5980;
+    --button-shadow: rgba(41, 128, 185, 0.4);
+    --error-color: #e74c3c;
+    --success-color: #27ae60;
+    --notification-bg-success: #27ae60;
+    --notification-bg-error: #e74c3c;
+    --table-bg: #fff;
+    --table-shadow: rgba(0, 0, 0, 0.1);
+    --footer-bg: #f1f1f1;
+    --footer-text-color: #555;
+  }
+
+  /* Dark Mode variables */
+  body.dark {
+    --bg-color: #121212;
+    --text-color: #eeeeee;
+    --form-bg: #1e1e1e;
+    --form-border: #3a3a3a;
+    --button-bg: #3b82f6;
+    --button-bg-hover: #2563eb;
+    --button-shadow: rgba(59, 130, 246, 0.5);
+    --error-color: #ef4444;
+    --success-color: #22c55e;
+    --notification-bg-success: #22c55e;
+    --notification-bg-error: #ef4444;
+    --table-bg: #1e1e1e;
+    --table-shadow: rgba(0, 0, 0, 0.7);
+    --footer-bg: #1e1e1e;
+    --footer-text-color: #aaa;
+  }
+
+  /* Container */
+  .container {
+    max-width: 900px;
+    width: 100%;
+    background: var(--table-bg);
+    padding: 30px 40px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px var(--table-shadow);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    flex: 1 0 auto;
+  }
+
+  h1 {
+    font-weight: 700;
+    font-size: 2.5rem;
+    margin-bottom: 25px;
+    color: var(--text-color);
+    text-align: center;
+    letter-spacing: 1.2px;
+  }
+
+  /* Dark mode toggle button */
+  #themeToggleBtn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: var(--button-bg);
+    border: none;
+    color: white;
+    padding: 8px 14px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 3px 10px var(--button-shadow);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    user-select: none;
+  }
+  #themeToggleBtn:hover {
+    background-color: var(--button-bg-hover);
+    box-shadow: 0 6px 20px var(--button-shadow);
+  }
+
+  /* Form Styles */
+  form {
+    background: var(--form-bg);
+    padding: 25px 30px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    box-shadow: inset 0 0 8px var(--form-border);
+    transition: box-shadow 0.3s ease, background-color 0.3s ease;
+  }
+  form:focus-within {
+    box-shadow: 0 0 15px var(--button-bg);
+  }
+  form > div {
+    display: flex;
+    align-items: center;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+  }
+  label {
+    flex: 0 0 100px;
+    font-weight: 600;
+    color: var(--text-color);
+    font-size: 1.05rem;
+    user-select: none;
+  }
+  input[type="number"], input[type="text"], textarea {
+    flex: 1 1 auto;
+    padding: 10px 14px;
+    border: 2px solid var(--form-border);
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+    background: inherit;
+    color: var(--text-color);
+  }
+  input[type="number"]:focus, input[type="text"]:focus, textarea:focus {
+    border-color: var(--button-bg);
+    outline: none;
+    background: var(--table-bg);
+  }
+  textarea {
+    min-height: 120px;
+    resize: vertical;
+  }
+  button {
+    cursor: pointer;
+    font-weight: 600;
+    padding: 12px 22px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 8px;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 2px 6px var(--button-shadow);
+    color: white;
+    background-color: var(--button-bg);
+  }
+  button:hover:enabled {
+    background-color: var(--button-bg-hover);
+    box-shadow: 0 4px 12px var(--button-shadow);
+  }
+  button:disabled {
+    background-color: #7ea6c1;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+  #cancelEdit {
+    background-color: #7f8c8d;
+    margin-left: 15px;
+    display: none;
+    box-shadow: none;
+  }
+  #cancelEdit:hover {
+    background-color: #636e72;
+  }
+
+  /* Table */
+  h2 {
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 15px;
+    border-bottom: 2px solid var(--button-bg);
+    padding-bottom: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 12px;
+    background: var(--table-bg);
+  }
+  th, td {
+    padding: 14px 18px;
+    text-align: left;
+    vertical-align: middle;
+    font-size: 1rem;
+    color: var(--text-color);
+  }
+  th {
+    color: #aaa;
+    font-weight: 700;
+  }
+  tbody tr {
+    background-color: var(--table-bg);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    border-radius: 8px;
+    transition: transform 0.15s ease;
+  }
+  tbody tr:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+  }
+  tbody td:first-child, tbody th:first-child {
+    border-radius: 8px 0 0 8px;
+  }
+  tbody td:last-child, tbody th:last-child {
+    border-radius: 0 8px 8px 0;
+  }
+
+  /* Updated action buttons container & buttons */
+  tbody td:last-child {
+    display: flex;
+    gap: 10px;
+    padding: 10px 18px;
+    justify-content: space-between;
+  }
+  tbody td:last-child button {
+    flex: 1 1 0;
+    margin: 0;
+    min-width: 0;
+    text-align: center;
+  }
+  tbody td:last-child button + button {
+    margin-left: 10px;
+  }
+
+  tbody button {
+    background-color: var(--button-bg);
+    color: #fff;
+    padding: 7px 14px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    box-shadow: 0 1px 4px var(--button-shadow);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  tbody button:hover {
+    background-color: var(--button-bg-hover);
+    box-shadow: 0 3px 9px var(--button-shadow);
+  }
+  tbody button:last-child {
+    background-color: var(--error-color);
+  }
+  tbody button:last-child:hover {
+    background-color: #b03a32;
+  }
+
+  /* Export/Import buttons */
+  .exportImportBtn {
+    display: inline-block;
+    padding: 13px 25px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    border-radius: 10px;
+    box-shadow: 0 3px 14px var(--button-shadow);
+    margin-top: 10px;
+    cursor: pointer;
+    user-select: none;
+    border: none;
+    color: white;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  #exportJSONBtn { background-color: #27ae60; margin-right: 12px; }
+  #exportJSONBtn:hover { background-color: #1f8c4a; box-shadow: 0 6px 22px rgba(31,140,74,0.6); }
+  #importJSONBtn { background-color: #2980b9; margin-right: 30px; }
+  #importJSONBtn:hover { background-color: #1c5980; box-shadow: 0 6px 22px rgba(28,89,128,0.6); }
+  #exportJSBtn { background-color: #9b59b6; margin-right: 12px; }
+  #exportJSBtn:hover { background-color: #7d3c98; box-shadow: 0 6px 22px rgba(125,60,152,0.6); }
+  #importJSBtn { background-color: #8e44ad; }
+  #importJSBtn:hover { background-color: #6f3682; box-shadow: 0 6px 22px rgba(111,54,130,0.6); }
+
+  /* Export area */
+  #exportArea {
+    margin-top: 25px;
+    border-radius: 10px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.95rem;
+    background-color: #2d2d2d;
+    color: #f1f1f1;
+    padding: 20px;
+    max-height: 360px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    box-shadow: inset 0 0 12px #1a1a1a;
+  }
+
+  /* Notification */
+  #notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 14px 22px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    opacity: 0;
+    pointer-events: none;
+    user-select: none;
+    transition: opacity 0.4s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    z-index: 1000;
+  }
+  #notification.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  #notification.success {
+    background-color: var(--notification-bg-success);
+  }
+  #notification.error {
+    background-color: var(--notification-bg-error);
+  }
+  #notification svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    stroke: white;
+    stroke-width: 2;
+  }
+
+  /* Search input */
+  #searchInput {
+    width: 100%;
+    padding: 10px 14px;
+    font-size: 1rem;
+    border: 2px solid var(--form-border);
+    border-radius: 8px;
+    margin-bottom: 20px;
+    transition: border-color 0.3s ease;
+    background: inherit;
+    color: var(--text-color);
+  }
+  #searchInput:focus {
+    border-color: var(--button-bg);
+    outline: none;
+  }
+
+  /* Clear All Button */
+  #clearAllBtn {
+    background-color: var(--error-color);
+    color: #fff;
+    user-select: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.3s ease;
+  }
+  #clearAllBtn:hover {
+    background-color: #b03a32;
+  }
+
+  /* Add top padding to Clear All on small screens */
+  @media (max-width: 600px) {
+    #clearAllBtn {
+      padding-top: 22px;
+    }
+
+    thead { display: none; }
+    form > div { flex-direction: column; align-items: stretch; }
+    label { margin-bottom: 6px; flex: none; width: 100%; }
+    input[type="number"], input[type="text"], textarea { width: 100%; }
+    #cancelEdit { margin-left: 0; margin-top: 12px; }
+    tbody td:last-child {
+      display: block !important; /* overwrite flex to block on small */
+      padding: 10px 18px;
+    }
+    tbody td:last-child button {
+      width: 100% !important;
+      margin: 0 0 6px 0 !important;
+      flex: none !important;
+    }
+    tbody td:last-child button + button {
+      margin-left: 0 !important;
+    }
+    tbody button { margin-bottom: 6px; width: 100%; }
+    tbody tr { display: block; margin-bottom: 18px; box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08); }
+    tbody td {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 18px;
+      border: none;
+      border-bottom: 1px solid #eee;
+    }
+    tbody td:last-child { border-bottom: none; padding-top: 12px; }
+    tbody td:nth-child(2), tbody td:nth-child(3) { font-style: italic; color: #555; }
+  }
+
+  /* Footer */
+  footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: var(--footer-bg);
+    color: var(--footer-text-color);
+    padding: 8px 0;
+    text-align: center;
+    font-size: 0.95rem;
+    user-select: none;
+    box-shadow: 0 -1px 8px rgba(0,0,0,0.1);
+    transition: background-color 0.3s ease, color 0.3s ease;
+    z-index: 10;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <button id="themeToggleBtn" aria-label="Toggle Dark/Light Mode" title="Toggle Dark/Light Mode">🌙 Dark Mode</button>
+
+  <h1>Hymns Manager</h1>
+
+  <form id="hymnForm" novalidate>
+    <input type="hidden" id="editIndex" value="-1" />
+    <div>
+      <label for="number">Number:</label>
+      <input type="number" id="number" min="1" required aria-required="true" aria-label="Hymn Number" />
+    </div>
+    <div>
+      <label for="title">Title:</label>
+      <input type="text" id="title" required aria-required="true" aria-label="Hymn Title" />
+    </div>
+    <div>
+      <label for="lyrics">Lyrics:</label>
+      <textarea id="lyrics" required aria-required="true" aria-label="Hymn Lyrics"></textarea>
+    </div>
+    <div>
+      <button type="submit" id="submitBtn" disabled>Add Hymn</button>
+      <button type="button" id="cancelEdit">Cancel Edit</button>
+    </div>
+  </form>
+
+  <input type="text" id="searchInput" placeholder="Search hymns by Number or Title…" aria-label="Search hymns" />
+
+  <button id="clearAllBtn">Clear All Hymns</button>
+
+  <h2>Hymns List</h2>
+  <table id="hymnsTable" aria-label="List of hymns">
+    <thead>
+      <tr>
+        <th scope="col">Number</th>
+        <th scope="col">Title</th>
+        <th scope="col">Lyrics (Preview)</th>
+        <th scope="col">Actions</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <div style="margin-top: 10px;">
+    <button id="exportJSONBtn" class="exportImportBtn" aria-label="Export hymns as JSON file">Export JSON</button>
+    <button id="importJSONBtn" class="exportImportBtn" aria-label="Import hymns from JSON file">Import JSON</button>
+    <input type="file" id="importJSONFileInput" accept=".json,.txt" style="display:none" />
+
+    <button id="exportJSBtn" class="exportImportBtn" aria-label="Export hymns as JavaScript file">Export JS</button>
+    <button id="importJSBtn" class="exportImportBtn" aria-label="Import hymns from JavaScript file">Import JS</button>
+    <input type="file" id="importJSFileInput" accept=".js,.txt" style="display:none" />
+  </div>
+
+  <pre id="exportArea" style="display:none" aria-live="polite" aria-atomic="true"></pre>
+</div>
+
+<footer>Created by: Kinen Key Samson</footer>
+
+<div id="notification" role="alert" aria-live="assertive" aria-atomic="true" class="success" hidden>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="20 6 9 17 4 12"></polyline>
+  </svg>
+  <span id="notificationMessage"></span>
+</div>
+
+<script>
+  // Constants & DOM Elements
+  let hymns = [];
+
+  const form = document.getElementById('hymnForm');
+  const numberInput = document.getElementById('number');
+  const titleInput = document.getElementById('title');
+  const lyricsInput = document.getElementById('lyrics');
+  const editIndexInput = document.getElementById('editIndex');
+  const submitBtn = document.getElementById('submitBtn');
+  const cancelEditBtn = document.getElementById('cancelEdit');
+  const hymnsTableBody = document.querySelector('#hymnsTable tbody');
+  const exportArea = document.getElementById('exportArea');
+  const notification = document.getElementById('notification');
+  const notificationMessage = document.getElementById('notificationMessage');
+  const themeToggleBtn = document.getElementById('themeToggleBtn');
+
+  const searchInput = document.getElementById('searchInput');
+  const clearAllBtn = document.getElementById('clearAllBtn');
+
+  const exportJSONBtn = document.getElementById('exportJSONBtn');
+  const importJSONBtn = document.getElementById('importJSONBtn');
+  const importJSONFileInput = document.getElementById('importJSONFileInput');
+
+  const exportJSBtn = document.getElementById('exportJSBtn');
+  const importJSBtn = document.getElementById('importJSBtn');
+  const importJSFileInput = document.getElementById('importJSFileInput');
+
+  // Helper: Show notification
+  function showNotification(message, type = 'success') {
+    notificationMessage.textContent = message;
+    notification.className = ''; // reset classes
+    notification.classList.add(type);
+    notification.hidden = false;
+    notification.classList.add('show');
+    clearTimeout(notification._timeout);
+    notification._timeout = setTimeout(() => {
+      notification.classList.remove('show');
+      // Hide after animation
+      setTimeout(() => notification.hidden = true, 400);
+    }, 3500);
+  }
+
+  // Load & Save hymns to localStorage
+  function saveToLocal() {
+    localStorage.setItem('hymnsData', JSON.stringify(hymns));
+  }
+  function loadFromLocal() {
+    try {
+      const data = localStorage.getItem('hymnsData');
+      if (data) {
+        hymns = JSON.parse(data);
+        if (!Array.isArray(hymns)) hymns = [];
+      }
+    } catch {
+      hymns = [];
+    }
+  }
+
+  // Theme Handling
+  function applyTheme(theme) {
+    if (theme === 'dark') {
+      document.body.classList.add('dark');
+      themeToggleBtn.textContent = '☀️ Light Mode';
+      themeToggleBtn.setAttribute('aria-pressed', 'true');
+    } else {
+      document.body.classList.remove('dark');
+      themeToggleBtn.textContent = '🌙 Dark Mode';
+      themeToggleBtn.setAttribute('aria-pressed', 'false');
+    }
+    localStorage.setItem('preferredTheme', theme);
+  }
+
+  // Toggle theme on button click
+  themeToggleBtn.addEventListener('click', () => {
+    const current = document.body.classList.contains('dark') ? 'dark' : 'light';
+    const next = current === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+  });
+
+  // Load saved theme or default light
+  const savedTheme = localStorage.getItem('preferredTheme') || 'light';
+  applyTheme(savedTheme);
+
+  // Validation & Form
+  function validateForm() {
+    const isValid = 
+      numberInput.value.trim() !== '' &&
+      !isNaN(Number(numberInput.value)) && Number(numberInput.value) > 0 &&
+      titleInput.value.trim() !== '' &&
+      lyricsInput.value.trim() !== '';
+    submitBtn.disabled = !isValid;
+  }
+
+  numberInput.addEventListener('input', validateForm);
+  titleInput.addEventListener('input', validateForm);
+  lyricsInput.addEventListener('input', validateForm);
+
+  // Render functions
+  function renderTable(filter = '') {
+    hymnsTableBody.innerHTML = '';
+    const normalizedFilter = filter.trim().toLowerCase();
+    hymns.forEach((hymn, index) => {
+      if (
+        hymn.title.toLowerCase().includes(normalizedFilter) ||
+        hymn.number.toString().includes(normalizedFilter)
+      ) {
+        const tr = document.createElement('tr');
+
+        const tdNumber = document.createElement('td');
+        tdNumber.textContent = hymn.number;
+        tr.appendChild(tdNumber);
+
+        const tdTitle = document.createElement('td');
+        tdTitle.textContent = hymn.title;
+        tr.appendChild(tdTitle);
+
+        const tdLyrics = document.createElement('td');
+        let preview = hymn.lyrics.replace(/\n/g, ' ').slice(0, 100);
+        if (hymn.lyrics.length > 100) preview += '...';
+        tdLyrics.textContent = preview;
+        tr.appendChild(tdLyrics);
+
+        const tdActions = document.createElement('td');
+
+        const editBtn = document.createElement('button');
+        editBtn.type = 'button';
+        editBtn.textContent = 'Edit';
+        editBtn.setAttribute('aria-label', `Edit hymn: ${hymn.title}`);
+        editBtn.addEventListener('click', () => startEdit(index));
+        tdActions.appendChild(editBtn);
+
+        const delBtn = document.createElement('button');
+        delBtn.type = 'button';
+        delBtn.textContent = 'Delete';
+        delBtn.style.marginLeft = '6px';
+        delBtn.setAttribute('aria-label', `Delete hymn: ${hymn.title}`);
+        delBtn.addEventListener('click', () => deleteHymn(index));
+        tdActions.appendChild(delBtn);
+
+        tr.appendChild(tdActions);
+        hymnsTableBody.appendChild(tr);
+      }
+    });
+  }
+
+  function startEdit(index) {
+    const hymn = hymns[index];
+    editIndexInput.value = index;
+    numberInput.value = hymn.number;
+    titleInput.value = hymn.title;
+    lyricsInput.value = hymn.lyrics;
+    submitBtn.textContent = 'Update Hymn';
+    cancelEditBtn.style.display = 'inline-block';
+    numberInput.focus();
+    validateForm();
+  }
+
+  function cancelEdit() {
+    editIndexInput.value = -1;
+    form.reset();
+    submitBtn.textContent = 'Add Hymn';
+    cancelEditBtn.style.display = 'none';
+    numberInput.focus();
+    validateForm();
+  }
+
+  function deleteHymn(index) {
+    if (confirm('Are you sure you want to delete this hymn?')) {
+      hymns.splice(index, 1);
+      if (+editIndexInput.value === index) cancelEdit();
+      saveToLocal();
+      renderTable(searchInput.value);
+      showNotification('Hymn deleted.');
+    }
+  }
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const number = parseInt(numberInput.value, 10);
+    const title = titleInput.value.trim();
+    const lyrics = lyricsInput.value.trim();
+    const editIndex = parseInt(editIndexInput.value, 10);
+
+    if (!number || !title || !lyrics) {
+      showNotification('Please fill in all fields correctly.', 'error');
+      return;
+    }
+    const duplicateIndex = hymns.findIndex((h, i) => h.number === number && i !== editIndex);
+    if (duplicateIndex !== -1) {
+      showNotification('A hymn with this number already exists.', 'error');
+      return;
+    }
+    if (editIndex >= 0) {
+      hymns[editIndex] = { number, title, lyrics };
+      cancelEdit();
+      showNotification('Hymn updated.');
+    } else {
+      hymns.push({ number, title, lyrics });
+      form.reset();
+      validateForm();
+      showNotification('New hymn added.');
+    }
+    hymns.sort((a, b) => a.number - b.number);
+    saveToLocal();
+    renderTable(searchInput.value);
+  });
+
+  cancelEditBtn.addEventListener('click', cancelEdit);
+
+  searchInput.addEventListener('input', () => {
+    renderTable(searchInput.value);
+  });
+
+  clearAllBtn.addEventListener('click', () => {
+    if (confirm('Are you sure you want to clear all hymns? This cannot be undone.')) {
+      hymns = [];
+      cancelEdit();
+      saveToLocal();
+      renderTable();
+      searchInput.value = '';
+      showNotification('All hymns cleared.');
+    }
+  });
+
+  // Export / Import JSON
+  exportJSONBtn.addEventListener('click', () => {
+    const jsonContent = JSON.stringify(hymns, null, 2);
+    exportArea.style.display = 'block';
+    exportArea.textContent = jsonContent;
+    const blob = new Blob([jsonContent], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'hymns.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  importJSONBtn.addEventListener('click', () => {
+    importJSONFileInput.value = '';
+    importJSONFileInput.click();
+  });
+
+  importJSONFileInput.addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      try {
+        const hymnsFromFile = JSON.parse(ev.target.result);
+        if (!Array.isArray(hymnsFromFile)) throw new Error('Invalid array.');
+        for (const h of hymnsFromFile) {
+          if (typeof h.number !== 'number' || typeof h.title !== 'string' || typeof h.lyrics !== 'string') {
+            throw new Error('Invalid hymn object.');
+          }
+        }
+        hymns = hymnsFromFile;
+        saveToLocal();
+        cancelEdit();
+        renderTable();
+        exportArea.style.display = 'none';
+        searchInput.value = '';
+        showNotification('Hymns imported from JSON successfully.');
+      } catch (err) {
+        showNotification('Failed to import JSON: ' + err.message, 'error');
+      }
+    };
+    reader.readAsText(file);
+  });
+
+  // Export / Import JS
+  exportJSBtn.addEventListener('click', () => {
+    let jsContent = 'const hymns = [\n';
+    hymns.forEach((h, i) => {
+      const lyricsEscaped = h.lyrics.replace(/`/g, '\\`');
+      jsContent += `  {\n    number: ${h.number},\n    title: "${h.title.replace(/"/g, '\\"')}",\n    lyrics: \`${lyricsEscaped}\`\n  }${i < hymns.length - 1 ? ',' : ''}\n`;
+    });
+    jsContent += '];\n';
+
+    exportArea.style.display = 'block';
+    exportArea.textContent = jsContent;
+
+    const blob = new Blob([jsContent], {type: 'text/javascript'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'hymns.js';
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  importJSBtn.addEventListener('click', () => {
+    importJSFileInput.value = '';
+    importJSFileInput.click();
+  });
+
+  importJSFileInput.addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      try {
+        const hymnsFromFile = (function() {
+          let hymns = [];
+          eval(ev.target.result);
+          return hymns;
+        })();
+        if (!Array.isArray(hymnsFromFile)) throw new Error('Invalid array in JS file');
+        hymns = hymnsFromFile;
+        saveToLocal();
+        cancelEdit();
+        renderTable();
+        exportArea.style.display = 'none';
+        searchInput.value = '';
+        showNotification('Hymns imported from JS successfully.');
+      }
+      catch(err) {
+        showNotification('Failed to import JS: ' + err.message, 'error');
+      }
+    };
+    reader.readAsText(file);
+  });
+
+  // Keyboard shortcuts
+  window.addEventListener('keydown', (e) => {
+    const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+    const ctrlKey = isMac ? e.metaKey : e.ctrlKey;
+
+    if (ctrlKey && e.key.toLowerCase() === 'n') {
+      e.preventDefault();
+      cancelEdit();
+      numberInput.focus();
+    }
+
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      if (submitBtn.textContent !== 'Add Hymn') {
+        cancelEdit();
+      } else {
+        form.reset();
+        validateForm();
+        numberInput.focus();
+      }
+    }
+
+    if (ctrlKey && e.key.toLowerCase() === 'f') {
+      e.preventDefault();
+      searchInput.focus();
+      searchInput.select();
+    }
+
+    if (ctrlKey && e.key.toLowerCase() === 's') {
+      e.preventDefault();
+      exportJSONBtn.click();
+    }
+
+    if (ctrlKey && e.key.toLowerCase() === 'j') {
+      e.preventDefault();
+      exportJSBtn.click();
+    }
+  });
+
+  // On load
+  loadFromLocal();
+  renderTable();
+  validateForm();
+</script>
+
+</body>
+</html>
