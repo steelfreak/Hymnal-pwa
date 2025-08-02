@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hymns Editor</title>
+<style>
+  /* Reset & Base */
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f9fafb;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .container {
+    max-width: 900px;
+    width: 100%;
+    background: #fff;
+    padding: 30px 40px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  }
+
+  h1 {
+    font-weight: 700;
+    font-size: 2.5rem;
+    margin-bottom: 25px;
+    color: #2c3e50;
+    text-align: center;
+    letter-spacing: 1.2px;
+  }
+
+  /* Form Styles */
+  form {
+    background: #e9eff3;
+    padding: 25px 30px;
+    border-radius: 10px;
+    margin-bottom: 35px;
+    box-shadow: inset 0 0 8px #d1d9e6;
+    transition: box-shadow 0.3s ease;
+  }
+  form:focus-within {
+    box-shadow: 0 0 15px #6cbae7;
+  }
+
+  form > div {
+    display: flex;
+    align-items: center;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+  }
+
+  label {
+    flex: 0 0 100px;
+    font-weight: 600;
+    color: #34495e;
+    font-size: 1.05rem;
+    user-select: none;
+  }
+
+  input[type="number"], input[type="text"], textarea {
+    flex: 1 1 auto;
+    padding: 10px 14px;
+    border: 2px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+  }
+  input[type="number"]:focus, input[type="text"]:focus, textarea:focus {
+    border-color: #2980b9;
+    outline: none;
+    background: #fefefe;
+  }
+  textarea {
+    min-height: 120px;
+    resize: vertical;
+  }
+
+  /* Buttons */
+  button {
+    cursor: pointer;
+    font-weight: 600;
+    padding: 12px 22px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 8px;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 2px 6px rgba(41, 128, 185, 0.2);
+  }
+  #submitBtn {
+    background-color: #2980b9;
+    color: #fff;
+  }
+  #submitBtn:hover {
+    background-color: #1c5980;
+    box-shadow: 0 4px 12px rgba(28, 89, 128, 0.4);
+  }
+  #cancelEdit {
+    background-color: #7f8c8d;
+    color: white;
+    margin-left: 15px;
+    display: none;
+  }
+  #cancelEdit:hover {
+    background-color: #636e72;
+  }
+
+  /* Table */
+  h2 {
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #2980b9;
+    padding-bottom: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 12px;
+  }
+  th, td {
+    padding: 14px 18px;
+    text-align: left;
+    vertical-align: middle;
+    font-size: 1rem;
+  }
+  th {
+    color: #555;
+    font-weight: 700;
+  }
+  tbody tr {
+    background-color: #fefefe;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    border-radius: 8px;
+    transition: transform 0.15s ease;
+  }
+  tbody tr:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+  }
+  tbody td:first-child, tbody th:first-child {
+    border-radius: 8px 0 0 8px;
+  }
+  tbody td:last-child, tbody th:last-child {
+    border-radius: 0 8px 8px 0;
+  }
+
+  /* Actions buttons in table */
+  tbody button {
+    background-color: #3498db;
+    color: #fff;
+    padding: 7px 14px;
+    margin-right: 8px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    box-shadow: 0 1px 4px rgba(52, 152, 219, 0.3);
+    transition: background-color 0.3s, box-shadow 0.3s ease;
+  }
+  tbody button:hover {
+    background-color: #2c80b4;
+    box-shadow: 0 3px 9px rgba(44, 128, 180, 0.5);
+  }
+  tbody button:last-child {
+    background-color: #e74c3c;
+  }
+  tbody button:last-child:hover {
+    background-color: #c0392b;
+  }
+
+  /* Export Button */
+  #exportBtn {
+    background-color: #27ae60;
+    color: #fff;
+    display: inline-block;
+    padding: 13px 25px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    border-radius: 10px;
+    box-shadow: 0 3px 14px rgba(39, 174, 96, 0.4);
+    margin-top: 10px;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    user-select: none;
+  }
+  #exportBtn:hover {
+    background-color: #1f8c4a;
+    box-shadow: 0 6px 22px rgba(31, 140, 74, 0.6);
+  }
+
+  /* Export Area */
+  #exportArea {
+    margin-top: 25px;
+    border-radius: 10px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.95rem;
+    background-color: #2d2d2d;
+    color: #f1f1f1;
+    padding: 20px;
+    max-height: 360px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    box-shadow: inset 0 0 12px #1a1a1a;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    form > div {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    label {
+      margin-bottom: 6px;
+      flex: none;
+      width: 100%;
+    }
+    input[type="number"], input[type="text"], textarea {
+      width: 100%;
+    }
+    #cancelEdit {
+      margin-left: 0;
+      margin-top: 12px;
+    }
+    tbody button {
+      margin-bottom: 6px;
+      width: 100%;
+    }
+    tbody tr {
+      display: block;
+      margin-bottom: 18px;
+      box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
+    }
+    tbody td {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 18px;
+      border: none;
+      border-bottom: 1px solid #eee;
+    }
+    tbody td:last-child {
+      border-bottom: none;
+      padding-top: 12px;
+    }
+    tbody td:nth-child(2), tbody td:nth-child(3) {
+      font-style: italic;
+      color: #555;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <h1>Hymns Manager</h1>
+
+  <form id="hymnForm" novalidate>
+    <input type="hidden" id="editIndex" value="-1" />
+    
+    <div>
+      <label for="number">Number:</label>
+      <input type="number" id="number" min="1" required aria-required="true" aria-label="Hymn Number" />
+    </div>
+    
+    <div>
+      <label for="title">Title:</label>
+      <input type="text" id="title" required aria-required="true" aria-label="Hymn Title" />
+    </div>
+    
+    <div>
+      <label for="lyrics">Lyrics:</label>
+      <textarea id="lyrics" required aria-required="true" aria-label="Hymn Lyrics"></textarea>
+    </div>
+    
+    <div>
+      <button type="submit" id="submitBtn">Add Hymn</button>
+      <button type="button" id="cancelEdit">Cancel Edit</button>
+    </div>
+  </form>
+
+  <h2>Hymns List</h2>
+  <table id="hymnsTable" aria-label="List of hymns">
+    <thead>
+      <tr>
+        <th scope="col">Number</th>
+        <th scope="col">Title</th>
+        <th scope="col">Lyrics (Preview)</th>
+        <th scope="col">Actions</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <button id="exportBtn" aria-label="Export hymns as JavaScript file">Export as JS File</button>
+
+  <pre id="exportArea" style="display:none" aria-live="polite" aria-atomic="true"></pre>
+
+</div>
+
+<script>
+  let hymns = [
+    {
+      number: 1,
+      title: "Amazing Grace",
+      lyrics: `Amazing grace! How sweet the sound
+That saved a wretch like me!
+I once was lost, but now am found;
+Was blind, but now I see
+
+Amazing grace! How sweet the sound
+That saved a wretch like me!
+I once was lost, but now am found;
+Was blind, but now I see`
+    },
+    {
+      number: 2,
+      title: "How Great Thou Art",
+      lyrics: `O Lord my God! When I in awesome wonder
+Consider all the worlds Thy hands have made,
+I see the stars, I hear the rolling thunder,
+Thy power throughout the universe displayed.`
+    },
+    {
+      number: 3,
+      title: "Holy, Holy, Holy",
+      lyrics: `Holy, holy, holy! Lord God Almighty!
+Early in the morning our song shall rise to Thee;
+Holy, holy, holy! Merciful and mighty!
+God in three persons, blessed Trinity!`
+    },
+    {
+      number: 4,
+      title: "Great Is Thy Faithfulness",
+      lyrics: `Great is Thy faithfulness, O God my Father,
+There is no shadow of turning with Thee;
+Thou changest not, Thy compassions, they fail not
+As Thou hast been Thou forever wilt be.`
+    },
+    {
+      number: 5,
+      title: "Blessed Assurance",
+      lyrics: `Blessed assurance, Jesus is mine!
+Oh, what a foretaste of glory divine!
+Heir of salvation, purchase of God,
+Born of His Spirit, washed in His blood.`
+    },
+    {
+      number: 6,
+      title: "It Is Well with My Soul",
+      lyrics: `When peace like a river attendeth my way,
+When sorrows like sea billows roll;
+Whatever my lot, Thou hast taught me to say,
+It is well, it is well with my soul.`
+    },
+    {
+      number: 7,
+      title: "Blessed Well with My Soul",
+      lyrics: `When peace like a river attendeth my way,
+When sorrows like sea billows roll;
+Whatever my lot, Thou hast taught me to say,
+It is well, it is well with my soul.`
+    }
+  ];
+
+  const form = document.getElementById('hymnForm');
+  const numberInput = document.getElementById('number');
+  const titleInput = document.getElementById('title');
+  const lyricsInput = document.getElementById('lyrics');
+  const editIndexInput = document.getElementById('editIndex');
+  const submitBtn = document.getElementById('submitBtn');
+  const cancelEditBtn = document.getElementById('cancelEdit');
+  const hymnsTableBody = document.querySelector('#hymnsTable tbody');
+  const exportBtn = document.getElementById('exportBtn');
+  const exportArea = document.getElementById('exportArea');
+
+  function renderTable() {
+    hymnsTableBody.innerHTML = '';
+    hymns.forEach((hymn, index) => {
+      const tr = document.createElement('tr');
+
+      const tdNumber = document.createElement('td');
+      tdNumber.textContent = hymn.number;
+      tr.appendChild(tdNumber);
+
+      const tdTitle = document.createElement('td');
+      tdTitle.textContent = hymn.title;
+      tr.appendChild(tdTitle);
+
+      const tdLyrics = document.createElement('td');
+      let preview = hymn.lyrics.replace(/\n/g, ' ').slice(0, 100);
+      if (hymn.lyrics.length > 100) preview += '...';
+      tdLyrics.textContent = preview;
+      tr.appendChild(tdLyrics);
+
+      const tdActions = document.createElement('td');
+
+      const editBtn = document.createElement('button');
+      editBtn.textContent = 'Edit';
+      editBtn.type = 'button';
+      editBtn.setAttribute('aria-label', `Edit hymn: ${hymn.title}`);
+      editBtn.addEventListener('click', () => startEdit(index));
+      tdActions.appendChild(editBtn);
+
+      const delBtn = document.createElement('button');
+      delBtn.textContent = 'Delete';
+      delBtn.type = 'button';
+      delBtn.style.marginLeft = '6px';
+      delBtn.setAttribute('aria-label', `Delete hymn: ${hymn.title}`);
+      delBtn.addEventListener('click', () => deleteHymn(index));
+      tdActions.appendChild(delBtn);
+
+      tr.appendChild(tdActions);
+      hymnsTableBody.appendChild(tr);
+    });
+  }
+
+  function startEdit(index) {
+    const hymn = hymns[index];
+    editIndexInput.value = index;
+    numberInput.value = hymn.number;
+    titleInput.value = hymn.title;
+    lyricsInput.value = hymn.lyrics;
+    submitBtn.textContent = 'Update Hymn';
+    cancelEditBtn.style.display = 'inline-block';
+    numberInput.focus();
+  }
+
+  function cancelEdit() {
+    editIndexInput.value = -1;
+    form.reset();
+    submitBtn.textContent = 'Add Hymn';
+    cancelEditBtn.style.display = 'none';
+    numberInput.focus();
+  }
+
+  function deleteHymn(index) {
+    if (confirm('Are you sure you want to delete this hymn?')) {
+      hymns.splice(index, 1);
+      if (+editIndexInput.value === index) {
+        cancelEdit();
+      }
+      renderTable();
+    }
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const number = parseInt(numberInput.value, 10);
+    const title = titleInput.value.trim();
+    const lyrics = lyricsInput.value.trim();
+    const editIndex = parseInt(editIndexInput.value, 10);
+
+    if (!number || !title || !lyrics) {
+      alert('Please fill in all fields correctly.');
+      return;
+    }
+
+    // Check for duplicate number except if editing current
+    const duplicateNumerIndex = hymns.findIndex((h, i) => h.number === number && i !== editIndex);
+    if (duplicateNumerIndex !== -1) {
+      alert('A hymn with this number already exists.');
+      return;
+    }
+
+    if (editIndex >= 0) {
+      // Update existing
+      hymns[editIndex] = { number, title, lyrics };
+      cancelEdit();
+    } else {
+      // Add new
+      hymns.push({ number, title, lyrics });
+      form.reset();
+    }
+
+    // Sort by number ascending
+    hymns.sort((a, b) => a.number - b.number);
+
+    renderTable();
+  });
+
+  cancelEditBtn.addEventListener('click', cancelEdit);
+
+  exportBtn.addEventListener('click', () => {
+    // Create JS file content
+    let jsContent = 'const hymns = [\n';
+    hymns.forEach((hymn, idx) => {
+      const lyricsEscaped = hymn.lyrics.replace(/`/g, '\\`'); // escape backticks inside lyrics
+      jsContent += `  {\n    number: ${hymn.number},\n    title: "${hymn.title.replace(/"/g, '\\"')}",\n    lyrics: \`${lyricsEscaped}\`\n  }${idx < hymns.length -1 ? ',' : ''}\n`;
+    });
+    jsContent += '];\n';
+
+    exportArea.style.display = 'block';
+    exportArea.textContent = jsContent;
+
+    // Trigger file download
+    const blob = new Blob([jsContent], { type: 'text/javascript' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'hymns.js';
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  // Initial render
+  renderTable();
+</script>
+
+</body>
+</html>
