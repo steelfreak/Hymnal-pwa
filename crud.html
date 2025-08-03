@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hymns Editor</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    max-width: 900px;
+  }
+  h1 {
+    margin-bottom: 10px;
+  }
+  form {
+    margin-bottom: 20px;
+    background-color: #f3f3f3;
+    padding: 15px;
+    border-radius: 6px;
+  }
+  form > div {
+    margin-bottom: 10px;
+  }
+  label {
+    display: inline-block;
+    width: 80px;
+    font-weight: bold;
+  }
+  input[type="number"], input[type="text"], textarea {
+    width: calc(100% - 90px);
+    padding: 6px;
+    box-sizing: border-box;
+  }
+  textarea {
+    height: 100px;
+    resize: vertical;
+  }
+  button {
+    margin-right: 6px;
+    padding: 8px 14px;
+    font-size: 14px;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  th, td {
+    border: 1px solid #bbb;
+    padding: 8px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    background-color: #ddd;
+  }
+  pre {
+    background: #eee;
+    padding: 10px;
+    overflow-x: auto;
+    border-radius: 3px;
+    max-height: 300px;
+  }
+</style>
+</head>
+<body>
+
+<h1>Hymns Manager</h1>
+
+<form id="hymnForm">
+  <input type="hidden" id="editIndex" value="-1" />
+  
+  <div>
+    <label for="number">Number:</label>
+    <input type="number" id="number" min="1" required />
+  </div>
+  
+  <div>
+    <label for="title">Title:</label>
+    <input type="text" id="title" required />
+  </div>
+  
+  <div>
+    <label for="lyrics">Lyrics:</label>
+    <textarea id="lyrics" required></textarea>
+  </div>
+  
+  <div>
+    <button type="submit" id="submitBtn">Add Hymn</button>
+    <button type="button" id="cancelEdit" style="display:none">Cancel Edit</button>
+  </div>
+</form>
+
+<h2>Hymns List</h2>
+<table id="hymnsTable" aria-label="List of hymns">
+  <thead>
+    <tr>
+      <th>Number</th>
+      <th>Title</th>
+      <th>Lyrics (First 100 chars)</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<button id="exportBtn">Export as JS File</button>
+
+<pre id="exportArea" style="display:none"></pre>
+
+<script>
+  let hymns = [
+    {
+      number: 1,
+      title: "Amazing Grace",
+      lyrics: `Amazing grace! How sweet the sound
+That saved a wretch like me!
+I once was lost, but now am found;
+Was blind, but now I see
+
+Amazing grace! How sweet the sound
+That saved a wretch like me!
+I once was lost, but now am found;
+Was blind, but now I see`
+    },
+    {
+      number: 2,
+      title: "How Great Thou Art",
+      lyrics: `O Lord my God! When I in awesome wonder
+Consider all the worlds Thy hands have made,
+I see the stars, I hear the rolling thunder,
+Thy power throughout the universe displayed.`
+    },
+    {
+      number: 3,
+      title: "Holy, Holy, Holy",
+      lyrics: `Holy, holy, holy! Lord God Almighty!
+Early in the morning our song shall rise to Thee;
+Holy, holy, holy! Merciful and mighty!
+God in three persons, blessed Trinity!`
+    },
+    {
+      number: 4,
+      title: "Great Is Thy Faithfulness",
+      lyrics: `Great is Thy faithfulness, O God my Father,
+There is no shadow of turning with Thee;
+Thou changest not, Thy compassions, they fail not
+As Thou hast been Thou forever wilt be.`
+    },
+    {
+      number: 5,
+      title: "Blessed Assurance",
+      lyrics: `Blessed assurance, Jesus is mine!
+Oh, what a foretaste of glory divine!
+Heir of salvation, purchase of God,
+Born of His Spirit, washed in His blood.`
+    },
+    {
+      number: 6,
+      title: "It Is Well with My Soul",
+      lyrics: `When peace like a river attendeth my way,
+When sorrows like sea billows roll;
+Whatever my lot, Thou hast taught me to say,
+It is well, it is well with my soul.`
+    },
+    {
+      number: 7,
+      title: "Blessed Well with My Soul",
+      lyrics: `When peace like a river attendeth my way,
+When sorrows like sea billows roll;
+Whatever my lot, Thou hast taught me to say,
+It is well, it is well with my soul.`
+    }
+  ];
+
+  const form = document.getElementById('hymnForm');
+  const numberInput = document.getElementById('number');
+  const titleInput = document.getElementById('title');
+  const lyricsInput = document.getElementById('lyrics');
+  const editIndexInput = document.getElementById('editIndex');
+  const submitBtn = document.getElementById('submitBtn');
+  const cancelEditBtn = document.getElementById('cancelEdit');
+  const hymnsTableBody = document.querySelector('#hymnsTable tbody');
+  const exportBtn = document.getElementById('exportBtn');
+  const exportArea = document.getElementById('exportArea');
+
+  function renderTable() {
+    hymnsTableBody.innerHTML = '';
+    hymns.forEach((hymn, index) => {
+      const tr = document.createElement('tr');
+
+      const tdNumber = document.createElement('td');
+      tdNumber.textContent = hymn.number;
+      tr.appendChild(tdNumber);
+
+      const tdTitle = document.createElement('td');
+      tdTitle.textContent = hymn.title;
+      tr.appendChild(tdTitle);
+
+      const tdLyrics = document.createElement('td');
+      let preview = hymn.lyrics.replace(/\\n/g, ' ').slice(0, 100);
+      if (hymn.lyrics.length > 100) preview += '...';
+      tdLyrics.textContent = preview;
+      tr.appendChild(tdLyrics);
+
+      const tdActions = document.createElement('td');
+
+      const editBtn = document.createElement('button');
+      editBtn.textContent = 'Edit';
+      editBtn.type = 'button';
+      editBtn.addEventListener('click', () => startEdit(index));
+      tdActions.appendChild(editBtn);
+
+      const delBtn = document.createElement('button');
+      delBtn.textContent = 'Delete';
+      delBtn.type = 'button';
+      delBtn.style.marginLeft = '6px';
+      delBtn.addEventListener('click', () => deleteHymn(index));
+      tdActions.appendChild(delBtn);
+
+      tr.appendChild(tdActions);
+      hymnsTableBody.appendChild(tr);
+    });
+  }
+
+  function startEdit(index) {
+    const hymn = hymns[index];
+    editIndexInput.value = index;
+    numberInput.value = hymn.number;
+    titleInput.value = hymn.title;
+    lyricsInput.value = hymn.lyrics;
+    submitBtn.textContent = 'Update Hymn';
+    cancelEditBtn.style.display = 'inline-block';
+  }
+
+  function cancelEdit() {
+    editIndexInput.value = -1;
+    form.reset();
+    submitBtn.textContent = 'Add Hymn';
+    cancelEditBtn.style.display = 'none';
+  }
+
+  function deleteHymn(index) {
+    if (confirm('Are you sure you want to delete this hymn?')) {
+      hymns.splice(index, 1);
+      if (editIndexInput.value == index) {
+        cancelEdit();
+      }
+      renderTable();
+    }
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const number = parseInt(numberInput.value, 10);
+    const title = titleInput.value.trim();
+    const lyrics = lyricsInput.value.trim();
+    const editIndex = parseInt(editIndexInput.value, 10);
+
+    if (!number || !title || !lyrics) {
+      alert('Please fill in all fields correctly.');
+      return;
+    }
+
+    // Check for duplicate number except if editing current
+    const duplicateNumerIndex = hymns.findIndex((h, i) => h.number === number && i !== editIndex);
+    if (duplicateNumerIndex !== -1) {
+      alert('A hymn with this number already exists.');
+      return;
+    }
+
+    if (editIndex >= 0) {
+      // Update existing
+      hymns[editIndex] = { number, title, lyrics };
+      cancelEdit();
+    } else {
+      // Add new
+      hymns.push({ number, title, lyrics });
+      form.reset();
+    }
+
+    // Sort by number ascending
+    hymns.sort((a, b) => a.number - b.number);
+
+    renderTable();
+  });
+
+  cancelEditBtn.addEventListener('click', cancelEdit);
+
+  exportBtn.addEventListener('click', () => {
+    // Create JS file content
+    let jsContent = 'const hymns = [\n';
+    hymns.forEach((hymn, idx) => {
+      const lyricsEscaped = hymn.lyrics
+        .replace(/`/g, '\\`'); // escape backticks inside lyrics
+      jsContent += `  {\n    number: ${hymn.number},\n    title: "${hymn.title.replace(/"/g, '\\"')}",\n    lyrics: \`${lyricsEscaped}\`\n  }${idx < hymns.length -1 ? ',' : ''}\n`;
+    });
+    jsContent += '];\n';
+
+    exportArea.style.display = 'block';
+    exportArea.textContent = jsContent;
+
+    // Trigger file download
+    const blob = new Blob([jsContent], { type: 'text/javascript' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'hymns.js';
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  // Initial render
+  renderTable();
+</script>
+
+</body>
+</html>

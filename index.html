@@ -85,196 +85,205 @@
       outline: 2px solid #2980b9;
       outline-offset: 2px;
     }
+
+    /* Install App Button Styling */
+    #installBtn {
+      display: none;
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      z-index: 1000;
+
+      background-color: #3498db;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 5px;
+
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      font-size: 16px;
+      transition: background-color 0.3s ease;
+    }
+    #installBtn:hover {
+      background-color: #2980b9;
+    }
   </style>
 </head>
 <body>
 
-<div id="indexPage" role="main" aria-label="Hymn Index Page">
-  <h1>GUSDSA Hymn Book</h1>
-  <input type="search" id="searchInput" placeholder="Search by song number or title…" aria-label="Search hymns" />
-  <table id="hymnTable" aria-label="Table of hymns">
-    <thead>
-      <tr><th scope="col">Number</th><th scope="col">Title</th></tr>
-    </thead>
-    <tbody>
-      <!-- Songs will be populated here with JavaScript -->
-    </tbody>
-  </table>
-</div>
-
-<div id="songPage" role="main" aria-label="Hymn Display Page" style="display:none;">
-  <h2 id="songTitle"></h2>
-  <pre id="songLyrics"></pre>
-
-  <div id="navButtons">
-    <button id="prevBtn" aria-label="Previous hymn">Previous</button>
-    <button id="nextBtn" aria-label="Next hymn">Next</button>
+  <div id="indexPage" role="main" aria-label="Hymn Index Page">
+    <h1>GUSDSA Hymn Book</h1>
+    <input type="search" id="searchInput" placeholder="Search by song number or title…" aria-label="Search hymns" />
+    <table id="hymnTable" aria-label="Table of hymns">
+      <thead>
+        <tr><th scope="col">Number</th><th scope="col">Title</th></tr>
+      </thead>
+      <tbody>
+        <!-- Songs will be populated here with JavaScript -->
+      </tbody>
+    </table>
   </div>
 
-  <button id="backToIndex">Back to Index</button>
-</div>
+  <div id="songPage" role="main" aria-label="Hymn Display Page" style="display:none;">
+    <h2 id="songTitle" tabindex="-1"></h2>
+    <pre id="songLyrics"></pre>
 
-<script>
-  // Hymns data array
-  const hymns = [
-    {
-      number: 1,
-      title: "Amazing Grace",
-      lyrics: `Amazing grace! How sweet the sound
-That saved a wretch like me!
-I once was lost, but now am found;
-Was blind, but now I see.`
-    },
-    {
-      number: 2,
-      title: "How Great Thou Art",
-      lyrics: `O Lord my God! When I in awesome wonder
-Consider all the worlds Thy hands have made,
-I see the stars, I hear the rolling thunder,
-Thy power throughout the universe displayed.`
-    },
-    {
-      number: 3,
-      title: "Holy, Holy, Holy",
-      lyrics: `Holy, holy, holy! Lord God Almighty!
-Early in the morning our song shall rise to Thee;
-Holy, holy, holy! Merciful and mighty!
-God in three persons, blessed Trinity!`
-    },
-    {
-      number: 4,
-      title: "Great Is Thy Faithfulness",
-      lyrics: `Great is Thy faithfulness, O God my Father,
-There is no shadow of turning with Thee;
-Thou changest not, Thy compassions, they fail not
-As Thou hast been Thou forever wilt be.`
-    },
-    {
-      number: 5,
-      title: "Blessed Assurance",
-      lyrics: `Blessed assurance, Jesus is mine!
-Oh, what a foretaste of glory divine!
-Heir of salvation, purchase of God,
-Born of His Spirit, washed in His blood.`
-    },
-    {
-      number: 6,
-      title: "It Is Well with My Soul",
-      lyrics: `When peace like a river attendeth my way,
-When sorrows like sea billows roll;
-Whatever my lot, Thou hast taught me to say,
-It is well, it is well with my soul.`
-    }
-  ];
+    <div id="navButtons">
+      <button id="prevBtn" aria-label="Previous hymn">Previous</button>
+      <button id="nextBtn" aria-label="Next hymn">Next</button>
+    </div>
 
-  const indexPage = document.getElementById('indexPage');
-  const songPage = document.getElementById('songPage');
-  const hymnTableBody = document.querySelector('#hymnTable tbody');
-  const searchInput = document.getElementById('searchInput');
-  const songTitle = document.getElementById('songTitle');
-  const songLyrics = document.getElementById('songLyrics');
-  const prevBtn = document.getElementById('prevBtn');
-  const nextBtn = document.getElementById('nextBtn');
-  const backToIndex = document.getElementById('backToIndex');
+    <button id="backToIndex">Back to Index</button>
+  </div>
 
-  let currentIndex = 0; // Index of currently open song
+  <!-- Custom Install Button -->
+  <button id="installBtn" aria-label="Install the app">Install App</button>
 
-  // Populate hymn list table with optional filter
-  function populateTable(filterText = '') {
-    const filter = filterText.trim().toLowerCase();
-    hymnTableBody.innerHTML = '';
-    const filteredHymns = hymns.filter(h => {
-      const numStr = h.number.toString();
-      return numStr.includes(filter) || h.title.toLowerCase().includes(filter);
-    });
+  <!-- Load the hymns array external script -->
+  <script src="songs.js"></script>
 
-    if (filteredHymns.length === 0) {
-      hymnTableBody.innerHTML = '<tr><td colspan="2" style="text-align:center; font-style:italic;">No songs found.</td></tr>';
-      return;
-    }
+  <script>
+    // Your main JS code here, hymns array is loaded already from songs.js
 
-    filteredHymns.forEach(h => {
-      const tr = document.createElement('tr');
-      tr.tabIndex = 0;
-      tr.setAttribute('role', 'button');
-      tr.setAttribute('aria-pressed', 'false');
-      tr.innerHTML = `<td>${h.number}</td><td>${h.title}</td>`;
-      tr.addEventListener('click', () => openSongByNumber(h.number));
-      tr.addEventListener('keypress', e => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          openSongByNumber(h.number);
-        }
+    const indexPage = document.getElementById('indexPage');
+    const songPage = document.getElementById('songPage');
+    const hymnTableBody = document.querySelector('#hymnTable tbody');
+    const searchInput = document.getElementById('searchInput');
+    const songTitle = document.getElementById('songTitle');
+    const songLyrics = document.getElementById('songLyrics');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const backToIndex = document.getElementById('backToIndex');
+
+    let currentIndex = 0; // Index of currently open song
+
+    // Populate hymn list table with optional filter
+    function populateTable(filterText = '') {
+      const filter = filterText.trim().toLowerCase();
+      hymnTableBody.innerHTML = '';
+      const filteredHymns = hymns.filter(h => {
+        const numStr = h.number.toString();
+        return numStr.includes(filter) || h.title.toLowerCase().includes(filter);
       });
-      hymnTableBody.appendChild(tr);
-    });
-  }
 
-  // Open song page by song number
-  function openSongByNumber(number) {
-    const idx = hymns.findIndex(h => h.number === number);
-    if (idx === -1) return;
-    currentIndex = idx;
-    showSong();
-  }
+      if (filteredHymns.length === 0) {
+        hymnTableBody.innerHTML = '<tr><td colspan="2" style="text-align:center; font-style:italic;">No songs found.</td></tr>';
+        return;
+      }
 
-  // Show current song details page
-  function showSong() {
-    const song = hymns[currentIndex];
-    songTitle.textContent = `${song.number}. ${song.title}`;
-    songLyrics.textContent = song.lyrics;
-    indexPage.style.display = 'none';
-    songPage.style.display = 'block';
-    // Disable buttons if no prev/next
-    prevBtn.disabled = currentIndex === 0;
-    nextBtn.disabled = currentIndex === hymns.length - 1;
-
-    // Move focus to the song title for accessibility
-    songTitle.focus();
-  }
-
-  // Navigation handlers
-  prevBtn.addEventListener('click', () => {
-    if (currentIndex > 0) {
-      currentIndex--;
-      showSong();
-    }
-  });
-
-  nextBtn.addEventListener('click', () => {
-    if (currentIndex < hymns.length - 1) {
-      currentIndex++;
-      showSong();
-    }
-  });
-
-  backToIndex.addEventListener('click', () => {
-    songPage.style.display = 'none';
-    indexPage.style.display = 'block';
-    searchInput.focus();
-  });
-
-  // Search filter event
-  searchInput.addEventListener('input', () => {
-    populateTable(searchInput.value);
-  });
-
-  // Initial populate
-  populateTable();
-
-  // Service Worker registration for PWA
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js')
-        .then(registration => {
-          console.log('Service Worker registered with scope:', registration.scope);
-        })
-        .catch(error => {
-          console.log('Service Worker registration failed:', error);
+      filteredHymns.forEach(h => {
+        const tr = document.createElement('tr');
+        tr.tabIndex = 0;
+        tr.setAttribute('role', 'button');
+        tr.setAttribute('aria-pressed', 'false');
+        tr.innerHTML = `<td>${h.number}</td><td>${h.title}</td>`;
+        tr.addEventListener('click', () => openSongByNumber(h.number));
+        tr.addEventListener('keypress', e => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            openSongByNumber(h.number);
+          }
         });
-    });
-  }
-</script>
+        hymnTableBody.appendChild(tr);
+      });
+    }
 
+    // Open song page by song number
+    function openSongByNumber(number) {
+      const idx = hymns.findIndex(h => h.number === number);
+      if (idx === -1) return;
+      currentIndex = idx;
+      showSong();
+    }
+
+    // Show current song details page
+    function showSong() {
+      const song = hymns[currentIndex];
+      songTitle.textContent = `${song.number}. ${song.title}`;
+      songLyrics.textContent = song.lyrics;
+      indexPage.style.display = 'none';
+      songPage.style.display = 'block';
+
+      // Disable buttons if no prev/next
+      prevBtn.disabled = currentIndex === 0;
+      nextBtn.disabled = currentIndex === hymns.length - 1;
+
+      // Move focus to the song title (for screen readers)
+      songTitle.focus();
+    }
+
+    // Navigation handlers
+    prevBtn.addEventListener('click', () => {
+      if (currentIndex > 0) {
+        currentIndex--;
+        showSong();
+      }
+    });
+
+    nextBtn.addEventListener('click', () => {
+      if (currentIndex < hymns.length - 1) {
+        currentIndex++;
+        showSong();
+      }
+    });
+
+    backToIndex.addEventListener('click', () => {
+      songPage.style.display = 'none';
+      indexPage.style.display = 'block';
+      searchInput.focus();
+    });
+
+    // Search filter event
+    searchInput.addEventListener('input', () => {
+      populateTable(searchInput.value);
+    });
+
+    // Initial populate on page load
+    populateTable();
+
+    // Service Worker registration for PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(registration => {
+            console.log('Service Worker registered with scope:', registration.scope);
+          })
+          .catch(error => {
+            console.log('Service Worker registration failed:', error);
+          });
+      });
+    }
+
+    // PWA install prompt logic
+    let deferredPrompt;
+    const installBtn = document.getElementById('installBtn');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.style.display = 'block';
+    });
+
+    installBtn.addEventListener('click', () => {
+      installBtn.style.display = 'none';
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(choiceResult => {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('User accepted the install prompt');
+          } else {
+            console.log('User dismissed the install prompt');
+          }
+          deferredPrompt = null;
+        });
+      }
+    });
+
+    window.addEventListener('appinstalled', () => {
+      console.log('PWA was installed');
+      installBtn.style.display = 'none';
+    });
+  </script>
 </body>
 </html>
