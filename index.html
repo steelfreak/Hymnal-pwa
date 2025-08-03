@@ -15,44 +15,100 @@
       margin: 20px;
       background-color: #f9f9f9;
       color: #333;
+      transition: background-color 0.3s ease, color 0.3s ease;
     }
+
     h1, h2 {
       color: #2c3e50;
     }
+
+    #modeToggle {
+      background-color: #2980b9;
+      border: none;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      user-select: none;
+      margin-bottom: 20px;
+      transition: background-color 0.3s ease;
+    }
+    #modeToggle:hover {
+      background-color: #216ca1;
+    }
+    #modeToggle:focus {
+      outline: 3px solid #3498db;
+      outline-offset: 2px;
+    }
+
     #indexPage, #songPage {
       max-width: 600px;
       margin: auto;
+      padding: 0 15px;
+      transition: color 0.3s ease, background-color 0.3s ease;
     }
+
     #searchInput {
       width: 100%;
       padding: 8px;
       margin-bottom: 15px;
       font-size: 16px;
       box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease;
     }
+    #searchInput:focus {
+      border-color: #3498db;
+      outline: none;
+      box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+      background-color: white;
+      color: #333;
+    }
+
+    /* Table styles */
     table {
       width: 100%;
-      border-collapse: collapse;
+      border-collapse: separate;
+      border-spacing: 0;
       margin-bottom: 30px;
+      background-color: white;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      border-radius: 8px;
+      overflow: hidden;
+      transition: background-color 0.3s ease, color 0.3s ease;
     }
     th, td {
-      border: 1px solid #ddd;
-      padding: 8px 12px;
+      padding: 12px 16px;
       text-align: left;
+      border-bottom: 1px solid #ddd;
+      transition: background-color 0.3s ease, color 0.3s ease;
     }
     th {
       background-color: #3498db;
       color: white;
+      font-weight: 600;
+      user-select: none; /* Prevent text highlight on click */
+      transition: background-color 0.3s ease;
     }
-    tr:hover {
+    td:first-child {
+      color: #7f8c8d;
+      width: 70px;
+      font-weight: 600;
+    }
+    tbody tr:hover {
       background-color: #e1f5fe;
       cursor: pointer;
+      transition: background-color 0.3s ease;
     }
-    #navButtons {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 30px;
+    tbody tr:focus {
+      outline: 3px solid #3498db;
+      outline-offset: 2px;
+      background-color: #ccefff;
     }
+
+    /* Buttons */
     button {
       background-color: #2980b9;
       border: none;
@@ -61,29 +117,56 @@
       border-radius: 4px;
       cursor: pointer;
       font-size: 16px;
+      transition: background-color 0.3s ease;
+      user-select: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
     }
-    button:disabled {
+    button:disabled,
+    button[aria-disabled="true"] {
       background-color: #95a5a6;
       cursor: default;
+      color: #d4d4d4;
     }
+    button:hover:not(:disabled) {
+      background-color: #216ca1;
+    }
+    button:focus {
+      outline: 3px solid #3498db;
+      outline-offset: 2px;
+    }
+
     #backToIndex {
       background-color: #27ae60;
       margin-top: 10px;
       width: 100%;
+      font-weight: 600;
     }
+    #backToIndex:hover:not(:disabled) {
+      background-color: #1e8449;
+    }
+
+    #navButtons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 30px;
+      gap: 10px;
+    }
+
     pre {
       white-space: pre-wrap;
       font-family: inherit;
-      font-size: 16px;
-      line-height: 1.5;
+      font-size: 18px;
+      line-height: 1.75;
       margin-top: 15px;
       background-color: #ecf0f1;
       padding: 15px;
       border-radius: 6px;
-    }
-    tr:focus {
-      outline: 2px solid #2980b9;
-      outline-offset: 2px;
+      border: 1px solid #ccc;
+      user-select: text;
+      transition: background-color 0.3s ease, color 0.3s ease;
     }
 
     /* Install App Button Styling */
@@ -108,34 +191,142 @@
     #installBtn:hover {
       background-color: #2980b9;
     }
+    #installBtn:focus {
+      outline: 3px solid #2980b9;
+      outline-offset: 2px;
+    }
+
+    /* Responsive */
+    @media (max-width: 400px) {
+      #navButtons {
+        flex-direction: column;
+        gap: 10px;
+      }
+      #navButtons button {
+        width: 100%;
+      }
+      #backToIndex {
+        width: 100%;
+        margin-top: 20px;
+      }
+    }
+
+    /* Dark mode via class */
+    body.dark-mode {
+      background-color: #121212;
+      color: #e0e0e0;
+    }
+    body.dark-mode #searchInput {
+      background-color: #222;
+      color: #ddd;
+      border-color: #444;
+    }
+    body.dark-mode #searchInput:focus {
+      background-color: #333;
+      color: #eee;
+      border-color: #007acc;
+      box-shadow: 0 0 5px rgba(0,122,204,0.7);
+    }
+    body.dark-mode table {
+      background-color: #1e1e1e;
+      color: #e0e0e0;
+      border-spacing: 0;
+    }
+    body.dark-mode th {
+      background-color: #007acc;
+      color: #eee;
+    }
+    body.dark-mode tbody tr:hover {
+      background-color: #444;
+    }
+    body.dark-mode tbody tr:focus {
+      background-color: #555;
+      outline-color: #007acc;
+    }
+    body.dark-mode td:first-child {
+      color: #a0aec0;
+    }
+    body.dark-mode pre {
+      background-color: #2c2c2c;
+      border-color: #444;
+      color: #ccc;
+    }
+    body.dark-mode #installBtn {
+      background-color: #007acc;
+    }
+    body.dark-mode #installBtn:hover {
+      background-color: #005fa3;
+    }
+    body.dark-mode button:disabled,
+    body.dark-mode button[aria-disabled="true"] {
+      background-color: #555;
+      color: #999;
+    }
+    body.dark-mode #backToIndex {
+      background-color: #229954;
+    }
+    body.dark-mode #backToIndex:hover:not(:disabled) {
+      background-color: #1d7a43;
+    }
+    body.dark-mode #modeToggle {
+      background-color: #007acc;
+    }
+    body.dark-mode #modeToggle:hover {
+      background-color: #005fa3;
+    }
   </style>
 </head>
 <body>
 
-  <div id="indexPage" role="main" aria-label="Hymn Index Page">
-    <h1>GUSDSA Hymn Book</h1>
-    <input type="search" id="searchInput" placeholder="Search by song number or title…" aria-label="Search hymns" />
-    <table id="hymnTable" aria-label="Table of hymns">
-      <thead>
-        <tr><th scope="col">Number</th><th scope="col">Title</th></tr>
-      </thead>
-      <tbody>
-        <!-- Songs will be populated here with JavaScript -->
-      </tbody>
-    </table>
-  </div>
+  <main>
+    <!-- Dark Mode Toggle Button -->
+    <button id="modeToggle" aria-pressed="false" aria-label="Toggle dark/light mode">🌙 Dark Mode</button>
 
-  <div id="songPage" role="main" aria-label="Hymn Display Page" style="display:none;">
-    <h2 id="songTitle" tabindex="-1"></h2>
-    <pre id="songLyrics"></pre>
+    <section id="indexPage" role="main" aria-label="Hymn Index Page">
+      <h1>GUSDSA Hymn Book</h1>
+      <input
+        type="search"
+        id="searchInput"
+        placeholder="Search by song number or title…"
+        aria-label="Search hymns"
+        autocomplete="off"
+      />
+      <table id="hymnTable" aria-label="Table of hymns" role="grid">
+        <thead>
+          <tr>
+            <th scope="col">Number</th>
+            <th scope="col">Title</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Songs will be populated here with JavaScript -->
+        </tbody>
+      </table>
+    </section>
 
-    <div id="navButtons">
-      <button id="prevBtn" aria-label="Previous hymn">Previous</button>
-      <button id="nextBtn" aria-label="Next hymn">Next</button>
-    </div>
+    <section
+      id="songPage"
+      role="main"
+      aria-label="Hymn Display Page"
+      style="display:none;"
+    >
+      <h2 id="songTitle" tabindex="-1"></h2>
+      <article>
+        <pre id="songLyrics"></pre>
+      </article>
 
-    <button id="backToIndex">Back to Index</button>
-  </div>
+      <nav id="navButtons" aria-label="Hymn navigation">
+        <button id="prevBtn" aria-label="Previous hymn">
+          &#8592; Previous
+        </button>
+        <button id="nextBtn" aria-label="Next hymn">
+          Next &#8594;
+        </button>
+      </nav>
+
+      <button id="backToIndex">Back to Index</button>
+    </section>
+  </main>
 
   <!-- Custom Install Button -->
   <button id="installBtn" aria-label="Install the app">Install App</button>
@@ -144,43 +335,50 @@
   <script src="songs.js"></script>
 
   <script>
-    // Your main JS code here, hymns array is loaded already from songs.js
+    // Elements
+    const indexPage = document.getElementById("indexPage");
+    const songPage = document.getElementById("songPage");
+    const hymnTableBody = document.querySelector("#hymnTable tbody");
+    const searchInput = document.getElementById("searchInput");
+    const songTitle = document.getElementById("songTitle");
+    const songLyrics = document.getElementById("songLyrics");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const backToIndex = document.getElementById("backToIndex");
 
-    const indexPage = document.getElementById('indexPage');
-    const songPage = document.getElementById('songPage');
-    const hymnTableBody = document.querySelector('#hymnTable tbody');
-    const searchInput = document.getElementById('searchInput');
-    const songTitle = document.getElementById('songTitle');
-    const songLyrics = document.getElementById('songLyrics');
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const backToIndex = document.getElementById('backToIndex');
+    const modeToggle = document.getElementById("modeToggle");
+    const darkModeClass = "dark-mode";
 
     let currentIndex = 0; // Index of currently open song
 
     // Populate hymn list table with optional filter
-    function populateTable(filterText = '') {
+    function populateTable(filterText = "") {
       const filter = filterText.trim().toLowerCase();
-      hymnTableBody.innerHTML = '';
-      const filteredHymns = hymns.filter(h => {
+      hymnTableBody.innerHTML = "";
+      // Remove aria-current from any row previously
+      const rows = hymnTableBody.querySelectorAll("tr[aria-current]");
+      rows.forEach((row) => row.removeAttribute("aria-current"));
+
+      const filteredHymns = hymns.filter((h) => {
         const numStr = h.number.toString();
         return numStr.includes(filter) || h.title.toLowerCase().includes(filter);
       });
 
       if (filteredHymns.length === 0) {
-        hymnTableBody.innerHTML = '<tr><td colspan="2" style="text-align:center; font-style:italic;">No songs found.</td></tr>';
+        hymnTableBody.innerHTML =
+          '<tr><td colspan="2" style="text-align:center; font-style:italic;">No songs found.</td></tr>';
         return;
       }
 
-      filteredHymns.forEach(h => {
-        const tr = document.createElement('tr');
+      filteredHymns.forEach((h) => {
+        const tr = document.createElement("tr");
         tr.tabIndex = 0;
-        tr.setAttribute('role', 'button');
-        tr.setAttribute('aria-pressed', 'false');
+        tr.setAttribute("role", "button");
+        tr.setAttribute("aria-pressed", "false");
         tr.innerHTML = `<td>${h.number}</td><td>${h.title}</td>`;
-        tr.addEventListener('click', () => openSongByNumber(h.number));
-        tr.addEventListener('keypress', e => {
-          if (e.key === 'Enter' || e.key === ' ') {
+        tr.addEventListener("click", () => openSongByNumber(h.number));
+        tr.addEventListener("keypress", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
             openSongByNumber(h.number);
           }
@@ -191,7 +389,7 @@
 
     // Open song page by song number
     function openSongByNumber(number) {
-      const idx = hymns.findIndex(h => h.number === number);
+      const idx = hymns.findIndex((h) => h.number === number);
       if (idx === -1) return;
       currentIndex = idx;
       showSong();
@@ -202,87 +400,132 @@
       const song = hymns[currentIndex];
       songTitle.textContent = `${song.number}. ${song.title}`;
       songLyrics.textContent = song.lyrics;
-      indexPage.style.display = 'none';
-      songPage.style.display = 'block';
+
+      indexPage.style.display = "none";
+      songPage.style.display = "block";
+
+      // Highlight current hymn in list for screen readers if visible
+      const rows = hymnTableBody.querySelectorAll("tr");
+      rows.forEach((row) => row.removeAttribute("aria-current"));
+      const currentRow = Array.from(rows).find(
+        (row) => row.firstElementChild?.textContent == song.number.toString()
+      );
+      if (currentRow) {
+        currentRow.setAttribute("aria-current", "true");
+      }
 
       // Disable buttons if no prev/next
       prevBtn.disabled = currentIndex === 0;
       nextBtn.disabled = currentIndex === hymns.length - 1;
+      if (prevBtn.disabled) prevBtn.setAttribute("aria-disabled", "true");
+      else prevBtn.removeAttribute("aria-disabled");
+      if (nextBtn.disabled) nextBtn.setAttribute("aria-disabled", "true");
+      else nextBtn.removeAttribute("aria-disabled");
 
       // Move focus to the song title (for screen readers)
       songTitle.focus();
     }
 
     // Navigation handlers
-    prevBtn.addEventListener('click', () => {
+    prevBtn.addEventListener("click", () => {
       if (currentIndex > 0) {
         currentIndex--;
         showSong();
       }
     });
 
-    nextBtn.addEventListener('click', () => {
+    nextBtn.addEventListener("click", () => {
       if (currentIndex < hymns.length - 1) {
         currentIndex++;
         showSong();
       }
     });
 
-    backToIndex.addEventListener('click', () => {
-      songPage.style.display = 'none';
-      indexPage.style.display = 'block';
+    backToIndex.addEventListener("click", () => {
+      songPage.style.display = "none";
+      indexPage.style.display = "block";
       searchInput.focus();
     });
 
     // Search filter event
-    searchInput.addEventListener('input', () => {
+    searchInput.addEventListener("input", () => {
       populateTable(searchInput.value);
     });
 
     // Initial populate on page load
     populateTable();
 
-    // Service Worker registration for PWA
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js')
-          .then(registration => {
-            console.log('Service Worker registered with scope:', registration.scope);
+    // PWA service worker registration
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker
+          .register("sw.js")
+          .then((registration) => {
+            console.log("Service Worker registered with scope:", registration.scope);
           })
-          .catch(error => {
-            console.log('Service Worker registration failed:', error);
+          .catch((error) => {
+            console.log("Service Worker registration failed:", error);
           });
       });
     }
 
     // PWA install prompt logic
     let deferredPrompt;
-    const installBtn = document.getElementById('installBtn');
+    const installBtn = document.getElementById("installBtn");
 
-    window.addEventListener('beforeinstallprompt', (e) => {
+    window.addEventListener("beforeinstallprompt", (e) => {
       e.preventDefault();
       deferredPrompt = e;
-      installBtn.style.display = 'block';
+      installBtn.style.display = "block";
     });
 
-    installBtn.addEventListener('click', () => {
-      installBtn.style.display = 'none';
+    installBtn.addEventListener("click", () => {
+      installBtn.style.display = "none";
       if (deferredPrompt) {
         deferredPrompt.prompt();
-        deferredPrompt.userChoice.then(choiceResult => {
-          if (choiceResult.outcome === 'accepted') {
-            console.log('User accepted the install prompt');
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === "accepted") {
+            console.log("User accepted the install prompt");
           } else {
-            console.log('User dismissed the install prompt');
+            console.log("User dismissed the install prompt");
           }
           deferredPrompt = null;
         });
       }
     });
 
-    window.addEventListener('appinstalled', () => {
-      console.log('PWA was installed');
-      installBtn.style.display = 'none';
+    window.addEventListener("appinstalled", () => {
+      console.log("PWA was installed");
+      installBtn.style.display = "none";
+    });
+
+    // Dark mode toggle logic
+
+    // Load saved mode preference on page load
+    window.addEventListener("DOMContentLoaded", () => {
+      const savedMode = localStorage.getItem("theme");
+      if (savedMode === "dark") {
+        document.body.classList.add(darkModeClass);
+        modeToggle.textContent = "☀️ Light Mode";
+        modeToggle.setAttribute("aria-pressed", "true");
+      } else {
+        modeToggle.textContent = "🌙 Dark Mode";
+        modeToggle.setAttribute("aria-pressed", "false");
+      }
+    });
+
+    // Toggle dark mode on button click
+    modeToggle.addEventListener("click", () => {
+      const isDark = document.body.classList.toggle(darkModeClass);
+      if (isDark) {
+        modeToggle.textContent = "☀️ Light Mode";
+        modeToggle.setAttribute("aria-pressed", "true");
+        localStorage.setItem("theme", "dark");
+      } else {
+        modeToggle.textContent = "🌙 Dark Mode";
+        modeToggle.setAttribute("aria-pressed", "false");
+        localStorage.setItem("theme", "light");
+      }
     });
   </script>
 </body>
